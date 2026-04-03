@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Вход — Одесская Генеалогия</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: #1a1410; min-height:100vh;
+    display:flex; align-items:center; justify-content:center;
+    font-family: 'Montserrat', sans-serif; font-weight:300;
+  }
+  .box {
+    width: 380px; padding: 48px;
+    border: 1px solid rgba(200,150,62,.3);
+    background: rgba(245,240,232,.03);
+    text-align: center;
+  }
+  .ornament { font-family:'Cormorant Garamond',serif; font-size:40px; color:rgba(200,150,62,.4); margin-bottom:16px; }
+  h1 { font-family:'Cormorant Garamond',serif; font-size:28px; color:#f5f0e8; margin-bottom:6px; }
+  .sub { font-size:11px; letter-spacing:3px; color:rgba(245,240,232,.35); margin-bottom:36px; text-transform:uppercase; }
+  input[type=password] {
+    width:100%; background:rgba(245,240,232,.07); border:1px solid rgba(245,240,232,.15);
+    color:#f5f0e8; padding:14px 18px; font-family:'Montserrat',sans-serif;
+    font-size:16px; outline:none; margin-bottom:16px; text-align:center;
+    letter-spacing:6px; transition:border-color .2s;
+  }
+  input[type=password]:focus { border-color: #c8963e; }
+  button {
+    width:100%; padding:14px; background:#c8963e; color:#1a1410;
+    border:none; font-family:'Montserrat',sans-serif; font-size:11px;
+    letter-spacing:4px; text-transform:uppercase; cursor:pointer;
+    transition:background .2s;
+  }
+  button:hover { background:#daa84a; }
+  .error { color:#8b3a2a; font-size:12px; margin-top:14px; letter-spacing:1px; }
+  .back { display:block; margin-top:24px; font-size:11px; letter-spacing:3px; color:rgba(245,240,232,.3); text-decoration:none; text-transform:uppercase; }
+  .back:hover { color:rgba(245,240,232,.6); }
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="ornament">⚷</div>
+  <h1>Архив</h1>
+  <p class="sub">Доступ только для администратора</p>
+  <form method="post">
+    <input type="password" name="password" placeholder="••••••••" autofocus>
+    <button type="submit">Войти</button>
+  </form>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <a href="/" class="back">← На главную</a>
+</div>
+</body>
+</html>

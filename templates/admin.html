@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Админ-панель — Одесская Генеалогия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8; --ink: #1a1410; --sepia: #7a5c3a;
+    --gold: #c8963e; --rust: #8b3a2a; --light: #ede5d8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:#1a1410; color: var(--cream); font-family: 'Montserrat', sans-serif; font-weight:300; }
+
+  nav {
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 16px 40px;
+    border-bottom: 1px solid rgba(245,240,232,.1);
+    background: rgba(26,20,16,.9);
+    position: sticky; top:0; z-index:100;
+  }
+  .nav-brand {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; font-style: italic; color: var(--gold);
+  }
+  .nav-links { display:flex; gap:24px; align-items:center; }
+  .nav-links a {
+    font-size: 11px; letter-spacing:3px; text-transform:uppercase;
+    color: rgba(245,240,232,.5); text-decoration:none; transition: color .2s;
+  }
+  .nav-links a:hover { color: var(--cream); }
+  .logout-btn {
+    font-size: 11px; letter-spacing:2px; text-transform:uppercase;
+    color: var(--rust); border: 1px solid var(--rust);
+    background:none; cursor:pointer; padding: 6px 16px;
+    font-family: 'Montserrat', sans-serif; transition: background .2s;
+  }
+  .logout-btn:hover { background: var(--rust); color: var(--cream); }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px; }
+
+  h2 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 32px; font-weight: 600;
+    color: var(--cream); margin-bottom: 8px;
+  }
+  .section-sub {
+    font-size: 12px; letter-spacing:2px; color: rgba(245,240,232,.4);
+    margin-bottom: 32px;
+  }
+
+  /* ── ФОРМА ── */
+  .form-card {
+    background: rgba(245,240,232,.05);
+    border: 1px solid rgba(245,240,232,.1);
+    padding: 32px; margin-bottom: 48px;
+  }
+  .form-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 16px; margin-bottom: 20px;
+  }
+  .form-group { display:flex; flex-direction:column; gap:8px; }
+  label { font-size:10px; letter-spacing:3px; text-transform:uppercase; color: rgba(245,240,232,.5); }
+  input, select, textarea {
+    background: rgba(245,240,232,.08);
+    border: 1px solid rgba(245,240,232,.15);
+    color: var(--cream); padding: 10px 14px;
+    font-family: 'Montserrat', sans-serif; font-size:14px; font-weight:300;
+    outline:none; transition: border-color .2s;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--gold); }
+  textarea { resize: vertical; min-height: 80px; }
+  select option { background: #2a2018; }
+  .form-group.full { grid-column: 1 / -1; }
+
+  .btn {
+    padding: 12px 32px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; letter-spacing: 3px;
+    text-transform: uppercase; cursor: pointer; border:none;
+    transition: background .2s, transform .1s;
+  }
+  .btn:active { transform: scale(.98); }
+  .btn-primary { background: var(--gold); color: var(--ink); }
+  .btn-primary:hover { background: #daa84a; }
+  .btn-danger { background: transparent; color: var(--rust); border: 1px solid var(--rust); font-size:10px; padding:6px 12px; }
+  .btn-danger:hover { background: var(--rust); color: var(--cream); }
+
+  /* ── ТАБЛИЦА ── */
+  .table-wrap { overflow-x: auto; margin-bottom: 60px; }
+  table { width:100%; border-collapse:collapse; }
+  thead tr { border-bottom: 1px solid rgba(245,240,232,.15); }
+  th {
+    font-size:10px; letter-spacing:3px; text-transform:uppercase;
+    color: rgba(245,240,232,.4); padding: 12px 16px; text-align:left;
+  }
+  td { padding: 16px; border-bottom: 1px solid rgba(245,240,232,.06); vertical-align:middle; }
+  tr:hover td { background: rgba(245,240,232,.03); }
+  .person-name { font-family:'Cormorant Garamond',serif; font-size:18px; color:var(--cream); }
+  .person-meta { font-size:12px; color: rgba(245,240,232,.4); margin-top:3px; }
+
+  .tag {
+    display:inline-block; padding: 3px 10px;
+    font-size:10px; letter-spacing:2px;
+    background: rgba(200,150,62,.15); color: var(--gold);
+    border: 1px solid rgba(200,150,62,.3);
+  }
+
+  /* ── РЕДАКТИРОВАНИЕ ── */
+  details summary {
+    cursor:pointer; color: rgba(245,240,232,.3);
+    font-size:11px; letter-spacing:2px;
+    list-style:none; margin-top:8px;
+  }
+  details summary:hover { color: var(--gold); }
+  details[open] .edit-form { margin-top:16px; }
+  .edit-form { background: rgba(245,240,232,.04); padding:20px; }
+  .edit-form .form-grid { gap:12px; margin-bottom:16px; }
+  .edit-form input, .edit-form textarea { font-size:13px; padding:8px 12px; }
+
+  .actions { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+
+  /* ── СВЯЗИ ── */
+  .relation-form { display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap; }
+  .relation-form .form-group { flex:1; min-width:150px; }
+
+  .rel-badge {
+    display:inline-flex; align-items:center; gap:8px;
+    background: rgba(245,240,232,.06); padding:6px 14px;
+    border: 1px solid rgba(245,240,232,.1);
+    margin:4px; font-size:13px; color: var(--cream);
+  }
+  .rel-badge .rel-type { font-size:10px; letter-spacing:2px; color:var(--gold); margin-right:4px; }
+</style>
+</head>
+<body>
+
+<nav>
+  <span class="nav-brand">Архив · Одесса</span>
+  <div class="nav-links">
+    <a href="/">← На сайт</a>
+    <form action="/admin/logout" method="get" style="display:inline">
+      <button class="logout-btn">Выйти</button>
+    </form>
+  </div>
+</nav>
+
+<div class="container">
+
+  <!-- ДОБАВИТЬ ЧЕЛОВЕКА -->
+  <h2>Добавить запись</h2>
+  <p class="section-sub">Новый человек в архиве</p>
+  <div class="form-card">
+    <form action="/admin/add_person" method="post">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Фамилия *</label>
+          <input type="text" name="last_name" required placeholder="Иванов">
+        </div>
+        <div class="form-group">
+          <label>Имя *</label>
+          <input type="text" name="first_name" required placeholder="Иван">
+        </div>
+        <div class="form-group">
+          <label>Отчество</label>
+          <input type="text" name="middle_name" placeholder="Иванович">
+        </div>
+        <div class="form-group">
+          <label>Год рождения</label>
+          <input type="number" name="birth_year" placeholder="1890" min="1600" max="2024">
+        </div>
+        <div class="form-group">
+          <label>Место рождения</label>
+          <input type="text" name="birth_place" placeholder="Одесса">
+        </div>
+        <div class="form-group">
+          <label>Год смерти</label>
+          <input type="number" name="death_year" placeholder="1950" min="1600" max="2024">
+        </div>
+        <div class="form-group full">
+          <label>Заметки</label>
+          <textarea name="notes" placeholder="Дополнительная информация, источники..."></textarea>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Добавить в архив</button>
+    </form>
+  </div>
+
+  <!-- ДОБАВИТЬ СВЯЗЬ -->
+  <h2>Добавить связь</h2>
+  <p class="section-sub">Родственные отношения между людьми</p>
+  <div class="form-card">
+    <form action="/admin/add_relation" method="post">
+      <div class="relation-form">
+        <div class="form-group">
+          <label>Человек 1</label>
+          <select name="person1_id" required>
+            <option value="">— выбрать —</option>
+            {% for p in persons %}
+            <option value="{{ p.id }}">{{ p.last_name }} {{ p.first_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Тип связи</label>
+          <select name="relation_type" required>
+            <option value="">— тип —</option>
+            <option>отец</option><option>мать</option>
+            <option>сын</option><option>дочь</option>
+            <option>брат</option><option>сестра</option>
+            <option>муж</option><option>жена</option>
+            <option>дед</option><option>бабушка</option>
+            <option>внук</option><option>внучка</option>
+            <option>дядя</option><option>тётя</option>
+            <option>племянник</option><option>племянница</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Человек 2</label>
+          <select name="person2_id" required>
+            <option value="">— выбрать —</option>
+            {% for p in persons %}
+            <option value="{{ p.id }}">{{ p.last_name }} {{ p.first_name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button type="submit" class="btn btn-primary" style="white-space:nowrap">Добавить связь</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- СПИСОК ЛЮДЕЙ -->
+  <h2>База данных</h2>
+  <p class="section-sub">{{ persons|length }} записей</p>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Имя</th>
+          <th>Годы</th>
+          <th>Место</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in persons %}
+        <tr>
+          <td style="color:rgba(245,240,232,.3); font-size:12px">{{ p.id }}</td>
+          <td>
+            <div class="person-name">{{ p.last_name }} {{ p.first_name }} {{ p.middle_name or '' }}</div>
+            {% if p.notes %}
+            <div class="person-meta">{{ p.notes[:60] }}{% if p.notes|length > 60 %}…{% endif %}</div>
+            {% endif %}
+          </td>
+          <td style="font-size:13px; color:rgba(245,240,232,.6)">
+            {{ p.birth_year or '?' }} {% if p.death_year %}— {{ p.death_year }}{% endif %}
+          </td>
+          <td style="font-size:13px; color:rgba(245,240,232,.5)">{{ p.birth_place or '—' }}</td>
+          <td>
+            <div class="actions">
+              <a href="/person/{{ p.id }}" style="font-size:11px;letter-spacing:2px;color:var(--gold);text-decoration:none">Открыть</a>
+              <form action="/admin/delete_person/{{ p.id }}" method="post"
+                onsubmit="return confirm('Удалить {{ p.last_name }} {{ p.first_name }}?')">
+                <button type="submit" class="btn btn-danger">Удалить</button>
+              </form>
+            </div>
+            <!-- Редактировать -->
+            <details>
+              <summary>✎ Редактировать</summary>
+              <div class="edit-form">
+                <form action="/admin/edit_person/{{ p.id }}" method="post">
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label>Фамилия</label>
+                      <input type="text" name="last_name" value="{{ p.last_name }}" required>
+                    </div>
+                    <div class="form-group">
+                      <label>Имя</label>
+                      <input type="text" name="first_name" value="{{ p.first_name }}" required>
+                    </div>
+                    <div class="form-group">
+                      <label>Отчество</label>
+                      <input type="text" name="middle_name" value="{{ p.middle_name or '' }}">
+                    </div>
+                    <div class="form-group">
+                      <label>Год рождения</label>
+                      <input type="number" name="birth_year" value="{{ p.birth_year or '' }}">
+                    </div>
+                    <div class="form-group">
+                      <label>Место</label>
+                      <input type="text" name="birth_place" value="{{ p.birth_place or '' }}">
+                    </div>
+                    <div class="form-group">
+                      <label>Год смерти</label>
+                      <input type="number" name="death_year" value="{{ p.death_year or '' }}">
+                    </div>
+                    <div class="form-group full">
+                      <label>Заметки</label>
+                      <textarea name="notes">{{ p.notes or '' }}</textarea>
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary">Сохранить</button>
+                </form>
+              </div>
+            </details>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Одесса — Генеалогия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --ink:   #1a1410;
+    --sepia: #7a5c3a;
+    --gold:  #c8963e;
+    --rust:  #8b3a2a;
+    --light-sepia: #ede5d8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 300;
+    min-height: 100vh;
+  }
+
+  /* ── ФОНОВАЯ ТЕКСТУРА ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(122,92,58,.06) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(122,92,58,.04) 40px);
+    pointer-events: none; z-index: 0;
+  }
+
+  /* ── ШАПКА ── */
+  header {
+    position: relative; z-index: 1;
+    text-align: center;
+    padding: 60px 20px 40px;
+    border-bottom: 1px solid rgba(122,92,58,.2);
+  }
+  .city-label {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 11px; letter-spacing: 6px;
+    text-transform: uppercase; color: var(--sepia);
+    margin-bottom: 16px;
+  }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 8vw, 80px);
+    font-weight: 600; line-height: .9;
+    color: var(--ink);
+    margin-bottom: 12px;
+  }
+  h1 em { color: var(--rust); font-style: italic; }
+  .subtitle {
+    font-size: 13px; letter-spacing: 2px;
+    color: var(--sepia); margin-bottom: 8px;
+  }
+  .counter {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px; color: var(--gold);
+    font-style: italic;
+  }
+
+  /* ── НАВИГАЦИЯ ── */
+  nav {
+    position: relative; z-index: 1;
+    display: flex; justify-content: center; gap: 32px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(122,92,58,.1);
+  }
+  nav a {
+    font-size: 11px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--sepia);
+    text-decoration: none; padding: 4px 0;
+    border-bottom: 1px solid transparent;
+    transition: color .2s, border-color .2s;
+  }
+  nav a:hover { color: var(--rust); border-color: var(--rust); }
+
+  /* ── ПОИСК ── */
+  .search-section {
+    position: relative; z-index: 1;
+    max-width: 700px; margin: 60px auto 0;
+    padding: 0 24px;
+  }
+  .search-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-style: italic;
+    color: var(--sepia); margin-bottom: 20px;
+    display: block; text-align: center;
+  }
+  .search-box {
+    display: flex; align-items: center;
+    border: 1px solid rgba(122,92,58,.4);
+    background: rgba(255,255,255,.7);
+    backdrop-filter: blur(4px);
+  }
+  .search-icon {
+    padding: 0 18px; color: var(--sepia); font-size: 18px; flex-shrink: 0;
+  }
+  #search-input {
+    flex: 1; border: none; background: transparent;
+    padding: 18px 0; font-family: 'Montserrat', sans-serif;
+    font-size: 15px; font-weight: 300; color: var(--ink);
+    outline: none;
+  }
+  #search-input::placeholder { color: rgba(122,92,58,.5); }
+  .search-hint {
+    font-size: 11px; color: var(--sepia); opacity: .6;
+    text-align: center; margin-top: 12px; letter-spacing: 1px;
+  }
+
+  /* ── РЕЗУЛЬТАТЫ ── */
+  #results {
+    max-width: 700px; margin: 0 auto;
+    padding: 0 24px 60px;
+    position: relative; z-index: 1;
+  }
+  .results-header {
+    font-size: 11px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--sepia);
+    padding: 28px 0 16px;
+    border-bottom: 1px solid rgba(122,92,58,.15);
+    margin-bottom: 0;
+  }
+  .result-card {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 20px 0;
+    border-bottom: 1px solid rgba(122,92,58,.1);
+    text-decoration: none; color: inherit;
+    transition: background .15s;
+    cursor: pointer;
+  }
+  .result-card:hover { background: rgba(122,92,58,.04); padding-left: 12px; padding-right: 12px; margin: 0 -12px; }
+  .result-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; font-weight: 600;
+    color: var(--ink); margin-bottom: 4px;
+  }
+  .result-meta {
+    font-size: 12px; color: var(--sepia); letter-spacing: .5px;
+  }
+  .result-arrow { color: var(--gold); font-size: 18px; }
+
+  /* ── ПУСТОЕ СОСТОЯНИЕ ── */
+  .empty-state {
+    text-align: center; padding: 80px 20px;
+  }
+  .empty-state .ornament {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 60px; color: rgba(122,92,58,.15);
+    display: block; margin-bottom: 16px;
+  }
+  .empty-state p {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-style: italic;
+    color: var(--sepia); opacity: .7;
+  }
+
+  /* ── ДЕКОРАТИВНЫЕ ЛИНИИ ── */
+  .divider {
+    text-align: center; margin: 40px 0;
+    color: var(--sepia); opacity: .3;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px; letter-spacing: 8px;
+  }
+
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:none; } }
+  .fade-in { animation: fadeIn .3s ease both; }
+</style>
+</head>
+<body>
+
+<header>
+  <p class="city-label">Одесса · с 1794 года</p>
+  <h1>Одесская<br><em>Генеалогия</em></h1>
+  <p class="subtitle">Архив родословных</p>
+  <p class="counter">{{ total }} {{ 'запись' if total == 1 else 'записей' if total in [2,3,4] else 'записей' }} в базе</p>
+</header>
+
+<nav>
+  <a href="/">Поиск</a>
+  <a href="/admin">Добавить запись</a>
+</nav>
+
+<div class="search-section">
+  <span class="search-label">Найдите своих предков</span>
+  <div class="search-box">
+    <span class="search-icon">⚲</span>
+    <input type="text" id="search-input"
+      placeholder="Фамилия, имя, отчество или место рождения…"
+      autocomplete="off" autofocus>
+  </div>
+  <p class="search-hint">Можно вводить частично · поиск без учёта регистра</p>
+</div>
+
+<div id="results">
+  <div class="empty-state">
+    <span class="ornament">❧</span>
+    <p>Начните вводить имя для поиска</p>
+  </div>
+</div>
+
+<script>
+const input = document.getElementById('search-input');
+const results = document.getElementById('results');
+let timer;
+
+input.addEventListener('input', () => {
+  clearTimeout(timer);
+  const q = input.value.trim();
+  if (!q) {
+    results.innerHTML = `<div class="empty-state"><span class="ornament">❧</span><p>Начните вводить имя для поиска</p></div>`;
+    return;
+  }
+  timer = setTimeout(() => fetchResults(q), 250);
+});
+
+async function fetchResults(q) {
+  const res = await fetch(`/search?q=${encodeURIComponent(q)}`);
+  const data = await res.json();
+
+  if (!data.length) {
+    results.innerHTML = `<div class="empty-state"><span class="ornament">✦</span><p>Записей не найдено — возможно, нужно пополнить архив</p></div>`;
+    return;
+  }
+
+  let html = `<div class="results-header">Найдено: ${data.length}</div>`;
+  data.forEach((p, i) => {
+    const years = p.birth_year ? `${p.birth_year}${p.death_year ? ' — ' + p.death_year : ' — …'}` : '';
+    const place = p.birth_place ? ` · ${p.birth_place}` : '';
+    html += `
+      <a class="result-card fade-in" href="/person/${p.id}" style="animation-delay:${i * 40}ms">
+        <div>
+          <div class="result-name">${p.full_name}</div>
+          <div class="result-meta">${years}${place}</div>
+        </div>
+        <span class="result-arrow">→</span>
+      </a>`;
+  });
+  results.innerHTML = html;
+}
+</script>
+</body>
+</html>

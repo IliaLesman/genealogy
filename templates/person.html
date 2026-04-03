@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ person.last_name }} {{ person.first_name }} — Одесская Генеалогия</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Montserrat:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #f5f0e8; --ink: #1a1410; --sepia: #7a5c3a;
+    --gold: #c8963e; --rust: #8b3a2a; --light-sepia: #ede5d8;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--cream); color: var(--ink);
+    font-family: 'Montserrat', sans-serif; font-weight: 300;
+    min-height: 100vh;
+  }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image:
+      repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(122,92,58,.06) 40px),
+      repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(122,92,58,.04) 40px);
+    pointer-events: none; z-index: 0;
+  }
+  nav {
+    position: relative; z-index: 1;
+    display: flex; align-items: center; gap: 20px;
+    padding: 18px 40px;
+    border-bottom: 1px solid rgba(122,92,58,.15);
+  }
+  .back-link {
+    font-size: 11px; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--sepia); text-decoration: none;
+    transition: color .2s;
+  }
+  .back-link:hover { color: var(--rust); }
+  .nav-divider { color: rgba(122,92,58,.3); }
+  .nav-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 15px; color: var(--sepia); font-style: italic;
+  }
+
+  .container {
+    position: relative; z-index: 1;
+    max-width: 860px; margin: 0 auto;
+    padding: 60px 40px;
+  }
+
+  /* ── ПРОФИЛЬ ── */
+  .profile-header {
+    border-left: 3px solid var(--gold);
+    padding-left: 32px; margin-bottom: 48px;
+  }
+  .profile-label {
+    font-size: 10px; letter-spacing: 5px;
+    text-transform: uppercase; color: var(--sepia);
+    margin-bottom: 12px;
+  }
+  .profile-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(32px, 5vw, 56px);
+    font-weight: 600; line-height: 1.1;
+    color: var(--ink); margin-bottom: 16px;
+  }
+  .profile-name em { color: var(--rust); font-style: italic; }
+
+  /* ── ДАННЫЕ ── */
+  .info-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 24px; margin-bottom: 48px;
+    padding: 32px;
+    background: rgba(255,255,255,.5);
+    border: 1px solid rgba(122,92,58,.15);
+  }
+  .info-item {}
+  .info-key {
+    font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--sepia);
+    margin-bottom: 6px;
+  }
+  .info-value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; color: var(--ink);
+  }
+  .info-value.empty { color: rgba(122,92,58,.3); font-style: italic; font-size: 14px; }
+
+  /* ── ЗАМЕТКИ ── */
+  .notes-block {
+    margin-bottom: 48px; padding: 28px 32px;
+    border-left: 2px solid rgba(200,150,62,.4);
+    background: rgba(255,255,255,.4);
+  }
+  .notes-block .section-title {
+    font-size: 10px; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--sepia);
+    margin-bottom: 12px;
+  }
+  .notes-text {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; line-height: 1.7; color: var(--ink);
+    font-style: italic;
+  }
+
+  /* ── РОДСТВЕННИКИ ── */
+  .section-title {
+    font-size: 10px; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--sepia);
+    margin-bottom: 24px; padding-bottom: 12px;
+    border-bottom: 1px solid rgba(122,92,58,.15);
+  }
+  .relatives-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 16px; margin-bottom: 48px;
+  }
+  .relative-card {
+    padding: 20px; border: 1px solid rgba(122,92,58,.15);
+    background: rgba(255,255,255,.5);
+    text-decoration: none; color: inherit;
+    transition: border-color .2s, transform .15s;
+    display: block;
+  }
+  .relative-card:hover { border-color: var(--gold); transform: translateY(-2px); }
+  .relative-type {
+    font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 8px;
+  }
+  .relative-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px; font-weight: 600; color: var(--ink);
+    margin-bottom: 4px;
+  }
+  .relative-years { font-size: 12px; color: var(--sepia); }
+
+  .no-relatives {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 17px; font-style: italic;
+    color: rgba(122,92,58,.4); padding: 32px 0;
+  }
+
+  @keyframes fadeIn { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:none} }
+  .fade-in { animation: fadeIn .4s ease both; }
+</style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="back-link">← Поиск</a>
+  <span class="nav-divider">·</span>
+  <span class="nav-title">Одесская Генеалогия</span>
+</nav>
+
+<div class="container">
+
+  <div class="profile-header fade-in">
+    <p class="profile-label">Запись архива #{{ person.id }}</p>
+    <h1 class="profile-name">
+      <em>{{ person.last_name }}</em><br>
+      {{ person.first_name }} {{ person.middle_name or '' }}
+    </h1>
+  </div>
+
+  <div class="info-grid fade-in" style="animation-delay:.1s">
+    <div class="info-item">
+      <div class="info-key">Год рождения</div>
+      <div class="info-value {% if not person.birth_year %}empty{% endif %}">
+        {{ person.birth_year or 'неизвестно' }}
+      </div>
+    </div>
+    <div class="info-item">
+      <div class="info-key">Место рождения</div>
+      <div class="info-value {% if not person.birth_place %}empty{% endif %}">
+        {{ person.birth_place or 'неизвестно' }}
+      </div>
+    </div>
+    <div class="info-item">
+      <div class="info-key">Год смерти</div>
+      <div class="info-value {% if not person.death_year %}empty{% endif %}">
+        {{ person.death_year or '—' }}
+      </div>
+    </div>
+    <div class="info-item">
+      <div class="info-key">Родственники</div>
+      <div class="info-value">{{ relatives|length }}</div>
+    </div>
+  </div>
+
+  {% if person.notes %}
+  <div class="notes-block fade-in" style="animation-delay:.2s">
+    <div class="section-title">Заметки</div>
+    <p class="notes-text">{{ person.notes }}</p>
+  </div>
+  {% endif %}
+
+  <div class="fade-in" style="animation-delay:.3s">
+    <div class="section-title">Родственники</div>
+    {% if relatives %}
+      <div class="relatives-grid">
+        {% for rel in relatives %}
+        <a href="/person/{{ rel.person.id }}" class="relative-card">
+          <div class="relative-type">{{ rel.relation_type }}</div>
+          <div class="relative-name">{{ rel.person.full_name }}</div>
+          <div class="relative-years">
+            {% if rel.person.birth_year %}{{ rel.person.birth_year }}{% endif %}
+            {% if rel.person.death_year %} — {{ rel.person.death_year }}{% endif %}
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="no-relatives">Связи пока не добавлены</p>
+    {% endif %}
+  </div>
+
+</div>
+</body>
+</html>
